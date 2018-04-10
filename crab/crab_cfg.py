@@ -17,10 +17,10 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 100
 config.Data.totalUnits = 2000
-config.Data.inputDBS='phys03'
-config.Data.outLFNDirBase = '/store/user/arizzi/NanoPost/'
+config.Data.inputDBS='global'
+config.Data.outLFNDirBase = '/store/user/jpata/NanoPost/'
 config.Data.publication = True
 config.Data.outputDatasetTag = 'NanoTestPost'
 config.section_("Site")
-config.Site.storageSite = "T2_IT_Bari"
+config.Site.storageSite = "T3_CH_PSI"
 

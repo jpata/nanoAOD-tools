@@ -197,7 +197,7 @@ class btagSFProducer(Module):
 
         discr = None
         if self.algo == "csvv2":
-            discr = "btagDeepB"
+            discr = "btagCSVV2"
         elif self.algo == "cmva":
             discr = "btagCMVA"
         else:
@@ -217,9 +217,11 @@ class btagSFProducer(Module):
             scale_factors = []
             for idx, jet in enumerate(jets):
                 sf = self.getSF(jet.pt, jet.eta, jet.partonFlavour, central_or_syst, 'shape_corr', 'auto', True, getattr(jet, discr))
+                if self.verbose > 1:
+                    print("jet #%i: pT = %1.1f, eta = %1.1f, discr = %1.3f, flavor = %i, sf=%1.2f" % (idx, jet.pt, jet.eta, getattr(jet, discr), jet.partonFlavour, sf))
                 if sf < 0.01:
                     if self.verbose > 0:
-                        print("jet #%i: pT = %1.1f, eta = %1.1f, discr = %1.3f, flavor = %i" % (idx, jet.pt, jet.eta, getattr(jet, discr), jet.partonFlavour))
+                        print("jet #%i: pT = %1.1f, eta = %1.1f, discr = %1.3f, flavor = %i, sf=%1.2f" % (idx, jet.pt, jet.eta, getattr(jet, discr), jet.partonFlavour, sf))
                     sf = 1.
                 scale_factors.append(sf)
             self.out.fillBranch(self.branchNames_central_and_systs_shape_corr[central_or_syst], scale_factors)
