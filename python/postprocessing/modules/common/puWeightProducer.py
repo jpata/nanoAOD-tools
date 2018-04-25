@@ -23,9 +23,19 @@ class puWeightProducer(Module):
         self.norm = norm
         self.verbose = verbose
         self.nvtxVar = nvtx_var
-        if "/WeightCalculatorFromHistogram_cc.so" not in ROOT.gSystem.GetLibraries():
-            print "Load C++ Worker"
-            ROOT.gROOT.ProcessLine(".L %s/python/PhysicsTools/NanoAODTools/postprocessing/helpers/WeightCalculatorFromHistogram.cc++" % os.environ['CMSSW_BASE'])
+       
+        #Try to load module via python dictionaries
+        try:
+            ROOT.gSystem.Load("libPhysicsToolsNanoAODTools")
+            dummy = ROOT.WeightCalculatorFromHistogram
+        #Load it via ROOT ACLIC. NB: this creates the object file in the CMSSW directory,
+        #causing problems if many jobs are working from the same CMSSW directory
+        except Exception as e:
+            print "Could not load module via python, trying via ROOT", e
+            if "/WeightCalculatorFromHistogram_cc.so" not in ROOT.gSystem.GetLibraries():
+                print "Load C++ Worker"
+                ROOT.gROOT.ProcessLine(".L %s/src/PhysicsTools/NanoAODTools/src/WeightCalculatorFromHistogram.cc++" % os.environ['CMSSW_BASE'])
+            dummy = ROOT.WeightCalculatorFromHistogram
     def loadHisto(self,filename,hname):
         tf = ROOT.TFile.Open(filename)
         hist = tf.Get(hname)
@@ -45,7 +55,6 @@ class puWeightProducer(Module):
 		if outputFile : 
 		    outputFile.cd()
 		    self.myh.Write()    
-	
         self._worker = ROOT.WeightCalculatorFromHistogram(self.myh,self.targeth,self.norm,self.fixLargeWeights,self.verbose)
         self.out = wrappedOutputTree
         self.out.branch(self.name, "F")
@@ -62,7 +71,7 @@ class puWeightProducer(Module):
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
-pufile_mc="%s/src/PhysicsTools/NanoAODTools/python/postprocessing/data/pileup/pileup_profile_Spring16.root" % os.environ['CMSSW_BASE']
+pufile_mc="%s/src/PhysicsTools/NanoAODTools/python/postprocessing/data/pileup/pileup_profile_Summer16.root" % os.environ['CMSSW_BASE']
 pufile_data="%s/src/PhysicsTools/NanoAODTools/python/postprocessing/data/pileup/PileupData_GoldenJSON_Full2016.root" % os.environ['CMSSW_BASE']
 puWeight = lambda : puWeightProducer(pufile_mc,pufile_data,"pu_mc","pileup",verbose=False)
 
